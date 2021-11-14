@@ -1,9 +1,28 @@
 {
-    "scripts": {
-        "test": "jest"
-    },
-    "dependencies": {
-        "": "^1.0.0",
-        "another_dep": "~2.2.0"
-      }
+  "scripts": {
+    "test": "jest"
+  },
+  "dependencies": {
+    "array2d": "0.0.5",
+    "jest": "27.3.1",
+    "requirejs": "2.3.6"
+  },
+  "name": "tetrisapi",
+  "version": "1.0.0",
+  "description": "An API that's everything Tetris",
+  "main": "tetrisAPI.js",
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EvanZhouDev/TetrisAPI.git"
+  },
+  "keywords": [
+    "tetris"
+  ],
+  "author": "Evan Zhou",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/EvanZhouDev/TetrisAPI/issues"
+  },
+  "homepage": "https://github.com/EvanZhouDev/TetrisAPI#readme"
 }
