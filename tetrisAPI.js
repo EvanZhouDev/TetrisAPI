@@ -1,4 +1,4 @@
-const Array2D = require('array2D');
+const Array2D = require('array2d');
 
 class Tetris {
     
