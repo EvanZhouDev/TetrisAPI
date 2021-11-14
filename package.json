@@ -20,7 +20,7 @@
     "tetris"
   ],
   "author": "Evan Zhou",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/EvanZhouDev/TetrisAPI/issues"
   },
