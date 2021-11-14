@@ -1,0 +1,9 @@
+{
+    "scripts": {
+        "test": "jest"
+    },
+    "dependencies": {
+        "": "^1.0.0",
+        "another_dep": "~2.2.0"
+      }
+}
