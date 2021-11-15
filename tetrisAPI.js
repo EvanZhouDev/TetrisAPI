@@ -1,9 +1,14 @@
-const Array2D = require('array2d');
+import _ from "lodash";
+const Array2D = require("array2d");
 
 class Tetris {
     constructor(width, height) {
         this.piece = null;
         this.stationary = Array2D.build(width, height, null);
+    }
+
+    clone() {
+        return _.cloneDeep(this);
     }
 
     summonPiece(piece) {
@@ -12,6 +17,7 @@ class Tetris {
         } else {
             console.error("Make sure that 'piece.shape' has 2D array!");
         }
+        return this;
     }
 
     destroyPiece() {
@@ -20,12 +26,11 @@ class Tetris {
 
     flatten() {
         if (this.piece !== null) {
-
             let returnBoard = Array2D.clone(this.stationary); // Creates a new array to work with
             // Renames some variables
             let shape = this.piece.shape;
             let pos = this.piece.pos;
-    
+
             // For each cell of array
             shape.forEach((v1, i1) => {
                 v1.forEach((_v2, i2) => {
@@ -39,10 +44,9 @@ class Tetris {
                     }
                 });
             });
-    
             // Return the new appened board
             return returnBoard;
-        }else{
+        } else {
             return this.stationary;
         }
     }
@@ -91,12 +95,14 @@ class PieceNotation {
     move(pos) {
         this.pos.x += pos.x;
         this.pos.y += pos.y;
+        return this;
     }
 
     // Moves the piece TO pos
     setPos(pos) {
         this.pos.x = pos.x;
         this.pos.y = pos.y;
+        return this;
     }
 
     // Rotates the piece
@@ -120,7 +126,15 @@ class Position {
 class TetrisRenderer {}
 
 let tetris = new Tetris(10, 40);
-tetris.summonPiece(new PieceNotation([[1,1], [1,1]], new Position(0, 0)));
+tetris.summonPiece(
+    new PieceNotation(
+        [
+            [1, 1],
+            [1, 1]
+        ],
+        new Position(0, 0)
+    )
+);
 console.log(tetris.flatten());
 
 tetris.destroyPiece();
@@ -129,7 +143,7 @@ console.log(tetris.flatten());
 tetris.summonPiece(new PieceNotation([[2], [2]], new Position(1, 0)));
 console.log(tetris.flatten());
 
-tetris.piece.move(new Position(0,1));
+tetris.piece.move(new Position(0, 1));
 console.log(tetris.flatten());
 
 module.exports = PieceNotation;
