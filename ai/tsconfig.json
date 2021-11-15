@@ -2,7 +2,8 @@
   "compileOnSave": true,
   "compilerOptions": {
     "target": "es2020",
-    "lib": ["es2020"]
-  },
-  "moduleResolution": "node"
+    "lib": ["es2020"],
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true
+  }
 }

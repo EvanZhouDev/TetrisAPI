@@ -1,5 +1,5 @@
-import _ from "./lodash";
-
+import _ from "lodash";
+import { Tetris, PieceNotation as Piece } from "../tetrisAPI";
 /**
  * A 2D-array representing a concrete state of a Tetris board
  */
@@ -83,59 +83,6 @@ export interface TetrisInterface {
    */
   clone(): TetrisInterface;
 }
-class Tetris implements TetrisInterface {
-  private summonedPiece?: PieceInterface;
-  private board?: Board;
-  constructor(board: Board) {
-    this.board = board;
-    this.summonedPiece = null;
-  }
-  summon(piece: PieceInterface) {
-    this.summonedPiece = piece; // TODO: IMPLEMENT putting it on the board
-    return this;
-  }
-  move(direction: Direction) {
-    // TODO: Implement
-    switch (direction) {
-      case "up": {
-        return this;
-      }
-      case "down": {
-        return this;
-      }
-      case "very down": {
-        return this;
-      }
-      case "left": {
-        return this;
-      }
-      case "very left": {
-        return this;
-      }
-      case "right": {
-        return this;
-      }
-      case "very right": {
-        return this;
-      }
-      default:
-        throw Error("Invalid direction: " + direction);
-    }
-    return this;
-  }
-  clone() {
-    return this.constructor.call(this.flatten());
-  }
-  hyperGravity() {
-    return this.move("very down").tick();
-  }
-  flatten() {
-    return [[]]; // TODO: IMPLEMENT
-  }
-  tick() {
-    return this; // TODO: IMPLEMENT
-  }
-}
 function getUniqueRotations(piece: PieceInterface): Array<PieceInterface> {
   let output = [];
   for (let x of [...Array(4).keys()]) {
@@ -150,7 +97,7 @@ function getEveryPossiblePos(
   let output: Array<[Board, Array<string>]> = [];
   const testBoard = new Tetris(board);
   testBoard.summon(piece);
-  testBoard.move("very left");
+  testBoard.piece.move("very left");
 
   let before = null;
   let moves: Array<string> = [];

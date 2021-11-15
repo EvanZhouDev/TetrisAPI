@@ -5,13 +5,13 @@
   "dependencies": {
     "array2d": "0.0.5",
     "jest": "27.3.1",
+    "lodash": "^4.17.21",
     "requirejs": "2.3.6"
   },
   "name": "tetrisapi",
   "version": "0.0.1",
   "description": "An API that's everything Tetris",
   "main": "tetrisAPI.js",
-  "devDependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/EvanZhouDev/TetrisAPI.git"
@@ -24,5 +24,8 @@
   "bugs": {
     "url": "https://github.com/EvanZhouDev/TetrisAPI/issues"
   },
-  "homepage": "https://github.com/EvanZhouDev/TetrisAPI#readme"
+  "homepage": "https://github.com/EvanZhouDev/TetrisAPI#readme",
+  "devDependencies": {
+    "@types/lodash": "^4.14.176"
+  }
 }
