@@ -1,4 +1,4 @@
-import _ from "lodash";
+const _ = require("lodash");
 const Array2D = require("array2d");
 
 class Tetris {
