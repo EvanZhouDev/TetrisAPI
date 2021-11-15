@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "./lodash";
 
 /**
  * A 2D-array representing a concrete state of a Tetris board
