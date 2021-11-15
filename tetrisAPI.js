@@ -54,23 +54,24 @@ class Tetris {
 
 class PieceNotation {
     // A array of rotations
-    #rotations = [];
-
+    
     // Creates rotations. Private function, called once on init
-    #createRotations() {
-        let rotatedShape = Array2D.clone(this.shape);
-        this.#rotations.push(this.shape);
-        for (let i = 0; i < 3; i++) {
-            rotatedShape = Array2D.rrotate(rotatedShape);
-            this.#rotations.push(rotatedShape);
-        }
-    }
-
+    
     constructor(shape, position) {
         this.shape = shape;
         this.pos = position;
         this.rotation = 0;
-        this.#createRotations();
+        this.ROTATIONS = [];
+        this.createRotations();
+    }
+
+    createRotations() {
+        let rotatedShape = Array2D.clone(this.shape);
+        this.ROTATIONS.push(this.shape);
+        for (let i = 0; i < 3; i++) {
+            rotatedShape = Array2D.rrotate(rotatedShape);
+            this.ROTATIONS.push(rotatedShape);
+        }
     }
 
     // Sets the rotation to 0-3.
@@ -88,7 +89,7 @@ class PieceNotation {
         }
 
         // Sets shape to the rotation
-        this.shape = this.#rotations[rotationIndex];
+        this.shape = this.ROTATIONS[rotationIndex];
     }
 
     // Moves the piece FROM its original position
