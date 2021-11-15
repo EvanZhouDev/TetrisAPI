@@ -1,7 +1,51 @@
-const Array2D = require('array2D');
+const Array2D = require("array2d");
 
 class Tetris {
+    constructor(width, height) {
+        this.piece = null;
+        this.stationary = Array2D.build(width, height, null);
+    }
+
+    summonPiece(piece) {
+        if (Array2D.check(piece.shape)) {
+            this.piece = piece;
+        } else {
+            console.error("Make sure that 'piece.shape' has 2D array!");
+        }
+    }
+
+    destroyPiece() {
+        this.piece = null;
+    }
+
+    flatten() {
+        if (this.piece !== null) {
+
+            let returnBoard = Array2D.clone(this.stationary); // Creates a new array to work with
+            // Renames some variables
+            let shape = this.piece.shape;
+            let pos = this.piece.pos;
     
+            // For each cell of array
+            shape.forEach((v1, i1) => {
+                v1.forEach((_v2, i2) => {
+                    if (
+                        pos.y + i1 < returnBoard.length &&
+                        pos.y + i1 >= 0 && // If valid y location
+                        pos.x + i2 < returnBoard[0].length && // If valid x location
+                        shape[i1][i2] !== 0 // If the current space of the board is able to be replaced
+                    ) {
+                        returnBoard[pos.y + i1][pos.x + i2] = shape[i1][i2]; // Append a shape onto the board
+                    }
+                });
+            });
+    
+            // Return the new appened board
+            return returnBoard;
+        }else{
+            return this.stationary;
+        }
+    }
 }
 
 class PieceNotation {
@@ -10,20 +54,19 @@ class PieceNotation {
 
     // Creates rotations. Private function, called once on init
     #createRotations() {
-        let rotatedShape = JSON.parse(JSON.stringify(this.shape));
+        let rotatedShape = Array2D.clone(this.shape);
         this.#rotations.push(this.shape);
         for (let i = 0; i < 3; i++) {
             rotatedShape = Array2D.rrotate(rotatedShape);
-           this.#rotations.push(rotatedShape);
+            this.#rotations.push(rotatedShape);
         }
     }
 
-    constructor (shape, position) {
+    constructor(shape, position) {
         this.shape = shape;
-        this.position = position;
+        this.pos = position;
         this.rotation = 0;
         this.#createRotations();
-        console.log(this.#rotations);
     }
 
     // Sets the rotation to 0-3.
@@ -32,7 +75,7 @@ class PieceNotation {
 
         // If number is less than 0, assumes it turns the other way
         if (rotationIndex < 0) {
-            rotationIndex = 4-(Math.abs(i)%4);
+            rotationIndex = 4 - (Math.abs(i) % 4);
         }
 
         // If number is more than 3, then finds i % 4
@@ -67,8 +110,26 @@ class PieceNotation {
     }
 }
 
-class TetrisRenderer {
-
+class Position {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+    }
 }
+
+class TetrisRenderer {}
+
+let tetris = new Tetris(10, 40);
+tetris.summonPiece(new PieceNotation([[1,1], [1,1]], new Position(0, 0)));
+console.log(tetris.flatten());
+
+tetris.destroyPiece();
+console.log(tetris.flatten());
+
+tetris.summonPiece(new PieceNotation([[2], [2]], new Position(1, 0)));
+console.log(tetris.flatten());
+
+tetris.piece.move(new Position(0,1));
+console.log(tetris.flatten());
 
 module.exports = PieceNotation;
