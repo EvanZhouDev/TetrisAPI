@@ -17,7 +17,9 @@
     "url": "git+https://github.com/EvanZhouDev/TetrisAPI.git"
   },
   "keywords": [
-    "tetris"
+    "tetris",
+    "API",
+    "tetris5"
   ],
   "author": "Evan Zhou",
   "license": "MIT",
