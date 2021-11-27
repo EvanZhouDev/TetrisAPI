@@ -205,20 +205,37 @@ class PieceNotation {
 		}
 	}
 
-	rotateR(stationary) {
-		let rotationIndex = this.rotation + 1;
+	rotate(stationary, right) { // true for right, false for left
+		let prevRotation = this.rotation;
+		let rotationIndex;
+		console.log(prevRotation);
 
-		// If number is more than 3, then finds i % 4
-		if (rotationIndex >= 4) {
-			rotationIndex = rotationIndex % 4;
+		// If turning right
+		if (right) {
+			// Increment rotation index
+			rotationIndex = this.rotation + 1;
+			
+			// If number is more than 3, then finds i % 4
+			if (rotationIndex >= 4) {
+				rotationIndex = rotationIndex % 4;
+			}
+		}else{ // If turning left
+			// Decrement rotation index
+			rotationIndex = this.rotation - 1;
+			console.log(rotationIndex);
+			if (rotationIndex == -1) {
+				rotationIndex = 3;
+			}
 		}
 
-		let testRotation = _.clone(this.piece);
-		testRotation = this.ROTATIONS[rotationIndex];
+		let testRotation = _.clone(this.ROTATIONS[rotationIndex]);
+		console.log(testRotation);
 
 		// If piece is under Tetris guidlines (has a wallkick object)
 		if (this.id !== undefined) {
-			if ((this.id = "o")) {
+			console.log(this.id)
+			if ((this.id == "o")) {
+				console.log("hi")
 				// There is no wall kick, rotation can be "ignored"
 				this.shape = this.ROTATIONS[rotationIndex];
 				this.rotation = rotationIndex;
@@ -242,8 +259,8 @@ class PieceNotation {
 				// Otherwise
 				let wallKickObj =
 					this.id == "i"
-						? wallKick.i["" + rotationIndex - 1 + "" + rotationIndex]
-						: wallKick.general["" + rotationIndex - 1 + "" + rotationIndex];
+						? wallKick.i["" + prevRotation + "" + rotationIndex]
+						: wallKick.general["" + prevRotation + "" + rotationIndex];
 
 				console.log(wallKickObj);
 				// "i" piece has special wall kick object
@@ -366,11 +383,12 @@ tetris.summonPiece(
 	)
 );
 
-tetris.piece.rotateR(stationary);
+tetris.piece.rotate(stationary, true);
 
 tetris.piece.move(new Position(-1, 0));
+console.log(tetris.flatten());
 
-tetris.piece.rotateR(stationary);
+tetris.piece.rotate(stationary, false);
 
 console.log(tetris.flatten());
 module.exports = PieceNotation;
