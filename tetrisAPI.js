@@ -1,6 +1,11 @@
 const _ = require("lodash");
 const Array2D = require("array2d");
 const wallKick = require("./wallkick.json");
+const { move } = require("array2d");
+
+let settings = {
+	lockDelay: 500,
+};
 
 class Tetris {
 	constructor(width, height) {
@@ -51,25 +56,48 @@ class Tetris {
 			return this.stationary;
 		}
 	}
+
+	gravity() {
+		if (
+			this.piece.movePiece(
+				{ x: 0, y: 1 },
+				true,
+				cellCollider(
+					this.stationary,
+					["overlap", "bottom"],
+					this.piece.pos.x,
+					this.piece.pos.y,
+					this.piece.shape,
+					true
+				)
+			) == false
+		) {
+			console.log("new piece!")
+		}
+	}
 }
 
 // CellCollider
-let tetrisCollider = (
+let cellCollider = (
 	main,
-	checkOverlap = false,
-	checkSides = true,
+	check = ["overlap", "sides"],
 	x,
 	y,
 	arr,
 	returnBool = false
 ) => {
+	check.forEach((x) => {
+		if (!["overlap", "sides", "left", "right", "bottom", "top"].includes(x)) {
+			console.error('\'' + x + '\' is not a valid parameter. Valid checks are: ["overlap", "sides", "left", "right", "bottom", "top"]');
+		}
+	})
 	// Status, returned at end
 	let status = {};
 
 	// Checks if the array is overlapping with main array
 	for (let [i, v] of arr.entries()) {
 		for (let [j, v2] of v.entries()) {
-			if (checkOverlap) {
+			if (check.includes("overlap")) {
 				if (arr[i][j] !== 0) {
 					let boardX = x + j;
 					let boardY = y + i;
@@ -103,58 +131,80 @@ let tetrisCollider = (
 				}
 			}
 
-			if (checkSides) {
-				if (v2 !== 0) {
-					// Finds the position of the cell
-					let boardX = x + j;
-					let boardY = y + i;
-					// Checks left border overlap
-					if (boardX - 1 < 0) {
+			if (v2 !== 0) {
+				// Finds the position of the cell
+				let boardX = x + j;
+				let boardY = y + i;
+				// Checks left border overlap
+				if (
+					boardX - 1 < 0 &&
+					(check.includes("left") || check.includes("side"))
+				) {
+					status.left = true;
+				}
+
+				// Checks right border overlap
+				if (
+					boardX + 1 > main[0].length - 1 &&
+					(check.includes("right") || check.includes("side"))
+				) {
+					status.right = true;
+				}
+
+				// Checks top border overlap
+				if (
+					boardY - 1 < 0 &&
+					(check.includes("top") || check.includes("side"))
+				) {
+					status.top = true;
+				}
+
+				// Checks bottom border overlap
+				if (
+					boardY + 1 > main.length - 1 &&
+					(check.includes("bottom") || check.includes("side"))
+				) {
+					status.bottom = true;
+				}
+
+				// Only do the following checks if position is valid
+				// Checks left collision
+				if (
+					!(boardX - 1 < 0) &&
+					(check.includes("left") || check.includes("side"))
+				) {
+					if (main[boardY][boardX - 1] !== 0) {
 						status.left = true;
 					}
+				}
 
-					// Checks right border overlap
-					if (boardX + 1 > main[0].length - 1) {
+				// Checks right collision
+				if (
+					!(boardX + 1 > main[0].length - 1) &&
+					(check.includes("right") || check.includes("side"))
+				) {
+					if (main[boardY][boardX + 1] !== 0) {
 						status.right = true;
 					}
+				}
 
-					// Checks top border overlap
-					if (boardY - 1 < 0) {
+				// Checks top collision
+				if (
+					Array.isArray(main[boardY - 1]) &&
+					(check.includes("top") || check.includes("side"))
+				) {
+					if (main[boardY - 1][boardX] !== 0) {
 						status.top = true;
 					}
+				}
 
-					// Checks bottom border overlap
-					if (boardY + 1 > main.length - 1) {
+				// Checks bottom collision
+				if (
+					Array.isArray(main[boardY + 1]) &&
+					(check.includes("bottom") || check.includes("side"))
+				) {
+					if (main[boardY + 1][boardX] !== 0) {
 						status.bottom = true;
-					}
-
-					// Only do the following checks if position is valid
-					// Checks left collision
-					if (!(boardX - 1 < 0)) {
-						if (main[boardY][boardX - 1] !== 0) {
-							status.left = true;
-						}
-					}
-
-					// Checks right collision
-					if (!(boardX + 1 > main[0].length - 1)) {
-						if (main[boardY][boardX + 1] !== 0) {
-							status.right = true;
-						}
-					}
-
-					// Checks top collision
-					if (Array.isArray(main[boardY - 1])) {
-						if (main[boardY - 1][boardX] !== 0) {
-							status.top = true;
-						}
-					}
-
-					// Checks bottom collision
-					if (Array.isArray(main[boardY + 1])) {
-						if (main[boardY + 1][boardX] !== 0) {
-							status.bottom = true;
-						}
 					}
 				}
 			}
@@ -169,6 +219,7 @@ let tetrisCollider = (
 		return status;
 	}
 };
+
 class PieceNotation {
 	/**
 	 *
@@ -232,10 +283,9 @@ class PieceNotation {
 			}
 			// See if current position is valid
 			if (
-				!tetrisCollider(
+				!cellCollider(
 					this.tetris.stationary,
-					true,
-					false,
+					["overlap"],
 					this.pos.x,
 					this.pos.y,
 					testRotation,
@@ -256,10 +306,9 @@ class PieceNotation {
 				// Repeat for all valid checks, default should be 5
 				for (let i = 0; i < Object.keys(wallKickObj).length; i++) {
 					if (
-						!tetrisCollider(
+						!cellCollider(
 							this.tetris.stationary,
-							true,
-							false,
+							["overlap", "sides"],
 							this.pos.x + wallKickObj[i + 1][0],
 							this.pos.y + wallKickObj[i + 1][1],
 							testRotation,
@@ -284,35 +333,52 @@ class PieceNotation {
 	}
 
 	// Moves the piece FROM its original position
-	move(pos, checkValid = true) {
-		if (checkValid) {
-			if (
-				!tetrisCollider(
-					this.tetris.stationary,
-					true,
-					true,
-					this.pos.x,
-					this.pos.y,
-					this.shape,
-					true
-				)
-			) {
-				this.pos.x += pos.x;
-				this.pos.y += pos.y;
-				return this;
-			}
-		} else {
-			this.pos.x += pos.x;
-			this.pos.y += pos.y;
-			return this;
-		}
+	movePiece(
+		pos,
+		checkValid = true,
+		customCollider = cellCollider(
+			this.tetris.stationary,
+			["overlap", "sides"],
+			this.pos.x,
+			this.pos.y,
+			this.shape,
+			true
+		)
+	) {
+		return this.setPos(
+			{ x: this.pos.x + pos.x, y: this.pos.y + pos.y },
+			checkValid,
+			customCollider
+		);
 	}
 
 	// Moves the piece TO pos
-	setPos(pos) {
-		this.pos.x = pos.x;
-		this.pos.y = pos.y;
-		return this;
+	setPos(
+		pos,
+		checkValid = true,
+		customCollider = cellCollider(
+			this.tetris.stationary,
+			["overlap", "sides"],
+			this.pos.x,
+			this.pos.y,
+			this.shape,
+			true
+		)
+	) {
+		console.log(this.tetris);
+		if (checkValid) {
+			if (!customCollider) {
+				this.pos.x = pos.x;
+				this.pos.y = pos.y;
+				return this;
+			} else {
+				return false;
+			}
+		} else {
+			this.pos.x = pos.x;
+			this.pos.y = pos.y;
+			return this;
+		}
 	}
 }
 
@@ -326,18 +392,6 @@ class Position {
 class TetrisRenderer {}
 
 let tetris = new Tetris(10, 40);
-tetris.summonPiece(
-	new PieceNotation(
-		[
-			[1, 1],
-			[1, 1],
-		],
-		new Position(0, 0)
-	),
-	"o"
-);
-
-tetris.destroyPiece();
 
 tetris.stationary = [
 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -385,66 +439,84 @@ tetris.stationary = [
 tetris.summonPiece(
 	new PieceNotation(
 		[
-			[0, 1, 1],
-			[1, 1, 0],
-			[0, 0, 0],
+			[1, 1],
+			[1, 1],
 		],
-		new Position(0, 0),
-		"s",
+		new Position(0, 36),
+		"o",
 		tetris
 	)
 );
 
-// tetris.piece.rotate(stationary, true);
-tetris.piece.rotate(true);
-
-tetris.piece.move(new Position(100, 0));
-console.log(tetris.flatten());
-
-tetris.stationary = [
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 1, 0, 2, 0, 0],
-	[0, 0, 5, 0, 0, 1, 0, 2, 0, 0],
-	[0, 6, 5, 5, 0, 1, 2, 2, 3, 0],
-	[6, 6, 6, 6, 0, 6, 6, 6, 6, 6],
-];
-
-tetris.piece.rotate(false);
+tetris.gravity();
 
 console.log(tetris.flatten());
-module.exports = PieceNotation;
+
+// tetris.destroyPiece();
+
+// tetris.summonPiece(
+// 	new PieceNotation(
+// 		[
+// 			[0, 1, 1],
+// 			[1, 1, 0],
+// 			[0, 0, 0],
+// 		],
+// 		new Position(0, 0),
+// 		"s",
+// 		tetris
+// 	)
+// );
+
+// // tetris.piece.rotate(stationary, true);
+// tetris.piece.rotate(true);
+
+// tetris.piece.move(new Position(100, 0));
+// console.log(tetris.flatten());
+
+// tetris.stationary = [
+// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+// 	[0, 0, 0, 0, 0, 1, 0, 2, 0, 0],
+// 	[0, 0, 5, 0, 0, 1, 0, 2, 0, 0],
+// 	[0, 6, 5, 5, 0, 1, 2, 2, 3, 0],
+// 	[6, 6, 6, 6, 0, 6, 6, 6, 6, 6],
+// ];
+
+// tetris.piece.rotate(false);
+
+// console.log(tetris.flatten());
+// module.exports = PieceNotation;
