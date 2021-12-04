@@ -8,10 +8,10 @@ tick.start();
 setTimeout(() => {
     tick.setActive(false);
 }, 5000)
-setTimeout(() => {
-    tick.setActive(true);
-}, 10000)
-console.log("hello");
+// setTimeout(() => {
+//     tick.setActive(true);
+// }, 10000)
+// console.log("hello");
 // tick.start();
 
 
