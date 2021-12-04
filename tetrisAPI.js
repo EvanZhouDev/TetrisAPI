@@ -1,7 +1,6 @@
 const _ = require("lodash");
 const Array2D = require("array2d");
 const wallKick = require("./wallkick.json");
-const { move } = require("array2d");
 
 let settings = {
 	lockDelay: 500,
@@ -72,7 +71,30 @@ class Tetris {
 				)
 			) == false
 		) {
-			console.log("new piece!")
+			console.log("new piece!");
+		}
+	}
+}
+
+class Tick {
+	constructor(tickUpdate, frameUpdate, tickSpeed) {
+		this.active = true;
+		this.tickUpdate = tickUpdate;
+		this.frameUpdate = frameUpdate;
+		this.tickSpeed = tickSpeed;
+	}
+
+	start() {
+		console.log("hi");
+		if (this.active) {
+			requestAnimationFrame(() => this.start());
+		}
+	}
+
+	setActive(bool) {
+		this.active = bool;
+		if (bool) {
+			this.start();
 		}
 	}
 }
@@ -88,9 +110,13 @@ let cellCollider = (
 ) => {
 	check.forEach((x) => {
 		if (!["overlap", "sides", "left", "right", "bottom", "top"].includes(x)) {
-			console.error('\'' + x + '\' is not a valid parameter. Valid checks are: ["overlap", "sides", "left", "right", "bottom", "top"]');
+			console.error(
+				"'" +
+					x +
+					'\' is not a valid parameter. Valid checks are: ["overlap", "sides", "left", "right", "bottom", "top"]'
+			);
 		}
-	})
+	});
 	// Status, returned at end
 	let status = {};
 
@@ -391,132 +417,9 @@ class Position {
 
 class TetrisRenderer {}
 
-let tetris = new Tetris(10, 40);
-
-tetris.stationary = [
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 1, 0, 2, 0, 0],
-	[0, 0, 5, 0, 0, 1, 0, 2, 0, 0],
-	[0, 6, 5, 5, 0, 1, 2, 2, 3, 0],
-	[6, 6, 6, 5, 0, 1, 3, 3, 3, 0],
-];
-
-tetris.summonPiece(
-	new PieceNotation(
-		[
-			[1, 1],
-			[1, 1],
-		],
-		new Position(0, 36),
-		"o",
-		tetris
-	)
-);
-
-tetris.gravity();
-
-console.log(tetris.flatten());
-
-// tetris.destroyPiece();
-
-// tetris.summonPiece(
-// 	new PieceNotation(
-// 		[
-// 			[0, 1, 1],
-// 			[1, 1, 0],
-// 			[0, 0, 0],
-// 		],
-// 		new Position(0, 0),
-// 		"s",
-// 		tetris
-// 	)
-// );
-
-// // tetris.piece.rotate(stationary, true);
-// tetris.piece.rotate(true);
-
-// tetris.piece.move(new Position(100, 0));
-// console.log(tetris.flatten());
-
-// tetris.stationary = [
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 1, 0, 2, 0, 0],
-// 	[0, 0, 5, 0, 0, 1, 0, 2, 0, 0],
-// 	[0, 6, 5, 5, 0, 1, 2, 2, 3, 0],
-// 	[6, 6, 6, 6, 0, 6, 6, 6, 6, 6],
-// ];
-
-// tetris.piece.rotate(false);
-
-// console.log(tetris.flatten());
-// module.exports = PieceNotation;
+module.exports = {
+	Tetris: Tetris,
+	Tick: Tick,
+	Position: Position,
+	PieceNotation: PieceNotation,
+};
