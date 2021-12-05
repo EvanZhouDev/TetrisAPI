@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "run": "nodemon --watch ./tetrisAPI.js --watch ./demo/demo.js --ext js --exec browserify ./demo/demo.js -o ./demo/bundle.js"
   },
   "dependencies": {
     "array2d": "0.0.5",
@@ -28,6 +29,8 @@
   },
   "homepage": "https://github.com/EvanZhouDev/TetrisAPI#readme",
   "devDependencies": {
-    "@types/lodash": "^4.14.176"
+    "@types/lodash": "^4.14.176",
+    "browserify": "^17.0.0",
+    "nodemon": "^2.0.15"
   }
 }
