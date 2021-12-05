@@ -1,7 +1,8 @@
 {
   "scripts": {
     "test": "jest",
-    "run": "nodemon --watch ./tetrisAPI.js --watch ./demo/demo.js --ext js --exec browserify ./demo/demo.js -o ./demo/bundle.js"
+    "run": "nodemon --watch ./tetrisAPI.js --watch ./demo/demo.js --ext js --exec browserify ./demo/demo.js -o ./demo/bundle.js",
+    "build-demo": "browserify ./demo/demo.js -o ./demo/bundle.js"
   },
   "dependencies": {
     "array2d": "0.0.5",
