@@ -1,153 +1,19 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 let TetrisAPI = require("../tetrisAPI");
-let tetris = new TetrisAPI.Tetris()
-
-let tick = new TetrisAPI.Tick();
-console.log(tick.active);
-tick.start();
-setTimeout(() => {
-    tick.setActive(false);
-}, 5000)
-// setTimeout(() => {
-//     tick.setActive(true);
-// }, 10000)
-// console.log("hello");
-// tick.start();
-
-
-// let tetris = new Tetris(10, 40);
-
-// tetris.stationary = [
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 1, 0, 2, 0, 0],
-// 	[0, 0, 5, 0, 0, 1, 0, 2, 0, 0],
-// 	[0, 6, 5, 5, 0, 1, 2, 2, 3, 0],
-// 	[6, 6, 6, 5, 0, 1, 3, 3, 3, 0],
-// ];
-
-// tetris.summonPiece(
-// 	new PieceNotation(
-// 		[
-// 			[1, 1],
-// 			[1, 1],
-// 		],
-// 		new Position(0, 36),
-// 		"o",
-// 		tetris
-// 	)
-// );
-
-// tetris.gravity();
-
+let tetris = new TetrisAPI.Tetris(20, 40, {left: "ArrowLeft", right: "ArrowRight", rotateRight: "ArrowUp", hard: " "});
+tetris.summonPiece(
+	new TetrisAPI.PieceNotation(
+		[
+			[1, 1],
+			[1, 1],
+		],
+		new TetrisAPI.Position(0, 36),
+		"o",
+		tetris
+	)
+);
 // console.log(tetris.flatten());
-// console.log("hi");
-
-// tetris.destroyPiece();
-
-// tetris.summonPiece(
-// 	new PieceNotation(
-// 		[
-// 			[0, 1, 1],
-// 			[1, 1, 0],
-// 			[0, 0, 0],
-// 		],
-// 		new Position(0, 0),
-// 		"s",
-// 		tetris
-// 	)
-// );
-
-// // tetris.piece.rotate(stationary, true);
-// tetris.piece.rotate(true);
-
-// tetris.piece.move(new Position(100, 0));
-// console.log(tetris.flatten());
-
-// tetris.stationary = [
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-// 	[0, 0, 0, 0, 0, 1, 0, 2, 0, 0],
-// 	[0, 0, 5, 0, 0, 1, 0, 2, 0, 0],
-// 	[0, 6, 5, 5, 0, 1, 2, 2, 3, 0],
-// 	[6, 6, 6, 6, 0, 6, 6, 6, 6, 6],
-// ];
-
-// tetris.piece.rotate(false);
-
-// console.log(tetris.flatten());
-// module.exports = PieceNotation;
-
-// console.log(test);
-// console.log("hi");
+tetris.appendControls(document);
 },{"../tetrisAPI":4}],2:[function(require,module,exports){
 // Array2D.js 0.0.5
 // Copyright (c) 2014 Matthew Trost
@@ -19526,10 +19392,73 @@ let settings = {
 	lockDelay: 500,
 };
 
+const defaults = {
+	speedUnit: {
+		1: 0.01667,
+		2: 0.021017,
+		3: 0.026977,
+		4: 0.035256,
+		5: 0.04693,
+		6: 0.06361,
+		7: 0.0879,
+		8: 0.1236,
+		9: 0.1775,
+		10: 0.2598,
+		11: 0.388,
+		12: 0.59,
+		13: 0.92,
+		14: 1.46,
+		15: 2.36,
+	},
+	shapes: {
+		i: [
+			[0, 0, 0, 0],
+			[1, 1, 1, 1],
+			[0, 0, 0, 0],
+			[0, 0, 0, 0],
+		],
+		ml: [
+			[2, 0, 0],
+			[2, 2, 2],
+			[0, 0, 0],
+		],
+		l: [
+			[0, 0, 3],
+			[3, 3, 3],
+			[0, 0, 0],
+		],
+		o: [
+			[4, 4],
+			[4, 4],
+		],
+		s: [
+			[0, 5, 5],
+			[5, 5, 0],
+			[0, 0, 0],
+		],
+		t: [
+			[0, 6, 0],
+			[6, 6, 6],
+			[0, 0, 0],
+		],
+		z: [
+			[7, 7, 0],
+			[0, 7, 7],
+			[0, 0, 0],
+		],
+	},
+	controls: {
+		left: "ArrowLeft",
+		right: "ArrowRight",
+		hard: " ",
+	}
+};
+
 class Tetris {
-	constructor(width, height) {
+	constructor(width, height, controls) {
 		this.piece = null;
-		this.stationary = Array2D.build(width, height, null);
+		this.stationary = Array2D.build(width, height, 0);
+		this.controls = controls;
 	}
 
 	clone() {
@@ -19576,7 +19505,7 @@ class Tetris {
 		}
 	}
 
-	gravity() {
+	gravity(piece = undefined) {
 		if (
 			this.piece.movePiece(
 				{ x: 0, y: 1 },
@@ -19591,13 +19520,68 @@ class Tetris {
 				)
 			) == false
 		) {
-			console.log("new piece!");
+			setTimeout(() => {
+				this.stationary = this.flatten();
+				if (piece == undefined) {
+					this.summonPiece(
+						new PieceNotation(
+							[
+								[1, 1],
+								[1, 1],
+							],
+							new Position(0, 0),
+							"o",
+							this
+						)
+					);
+					console.log(this.flatten());
+				} else {
+					this.summonPiece(piece);
+				}
+			}, settings.lockDelay);
 		}
+	}
+
+	appendControls(element) {
+		element.addEventListener("keydown", (e) => {
+			if (e.key === this.controls.left) {
+				console.log("left");
+				this.piece.movePiece(new Position(-1, 0), true, cellCollider(
+					this.stationary,
+					["overlap", "left"],
+					this.piece.pos.x,
+					this.piece.pos.y,
+					this.piece.shape,
+					true
+				));
+			} else if (e.key === this.controls.right) {
+				this.piece.movePiece(new Position(1, 0), true, cellCollider(
+					this.stationary,
+					["right"],
+					this.piece.pos.x,
+					this.piece.pos.y,
+					this.piece.shape,
+					true
+				))
+			} else if (e.key === this.controls.rotateLeft) {
+				this.piece.rotate(false);
+			} else if (e.key === this.controls.rotateRight) {
+				this.piece.rotate(true);
+			} else if (e.key === this.controls.hard) {
+				console.log("hi")
+				console.log(this.piece.maxY());
+				this.piece.pos.y = this.piece.maxY();
+				console.log(this.flatten());
+				this.gravity();
+			}
+		});
 	}
 }
 
 class Tick {
 	constructor(tickUpdate, frameUpdate, tickSpeed) {
+		this.timeExists = 0;
+		this.timeSimulated = 0;
 		this.active = true;
 		this.tickUpdate = tickUpdate;
 		this.frameUpdate = frameUpdate;
@@ -19605,7 +19589,12 @@ class Tick {
 	}
 
 	start() {
-		console.log("hi");
+		this.frameUpdate();
+		this.timeExists += 1;
+		while (this.timeExists > this.timeSimulated) {
+			this.tickUpdate();
+			this.timeSimulated += 1 / this.tickSpeed;
+		}
 		if (this.active) {
 			requestAnimationFrame(() => this.start());
 		}
@@ -19784,6 +19773,25 @@ class PieceNotation {
 		this.createRotations();
 	}
 
+	maxY = () => {
+		// Finds lowest place piece can go from current y
+		let maxY = this.pos.y;
+		while (
+			!cellCollider(
+				this.tetris.stationary,
+				["overlap", "bottom"],
+				this.pos.x,
+				maxY,
+				this.shape,
+				true
+			)
+		) {
+			console.log("hi");
+			maxY++;
+		}
+		return maxY;
+	};
+
 	// Creates rotations. Private function, called once on init
 	createRotations() {
 		let rotatedShape = Array2D.clone(this.shape);
@@ -19942,6 +19950,7 @@ module.exports = {
 	Tick: Tick,
 	Position: Position,
 	PieceNotation: PieceNotation,
+	defaults: defaults,
 };
 
 },{"./wallkick.json":5,"array2d":2,"lodash":3}],5:[function(require,module,exports){
