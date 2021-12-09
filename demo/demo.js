@@ -1,15 +1,27 @@
-let TetrisAPI = require("../tetrisAPI");
-let tetris = new TetrisAPI.Tetris(20, 40, {left: "ArrowLeft", right: "ArrowRight", rotateRight: "ArrowUp", hard: " "});
+let canvas = document.getElementById("gameCanvas");
+let ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+
+
+let t = require("../tetrisAPI");
+let tetris = new t.Tetris();
+
 tetris.summonPiece(
-	new TetrisAPI.PieceNotation(
-		[
-			[1, 1],
-			[1, 1],
-		],
-		new TetrisAPI.Position(0, 36),
-		"o",
+	new t.PieceNotation(
+		t.defaults.shapes.i,
+		new t.Position(0, 19),
+		"i",
 		tetris
 	)
 );
-// console.log(tetris.flatten());
+
 tetris.appendControls(document);
+
+let renderer = new t.TetrisRenderer(ctx, undefined, tetris);
+let tick = new t.Tick(() => {tetris.gravity()}, () => {renderer.render()});
+
+tick.start();
+

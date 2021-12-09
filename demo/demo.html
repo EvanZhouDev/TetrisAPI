@@ -13,6 +13,25 @@
 		<link rel="stylesheet" href="" />
 	</head>
 	<body>
+		<style>
+			canvas {
+				/* No margin */
+				margin: 0;
+
+				/* Fit canvas to entire page */
+				width: 100%;
+				height: 100%;
+
+				/* No scroll */
+				position: fixed;
+
+				/* Start hidden */
+				/* visibility: hidden; */
+				/* opacity: 0; */
+				background: antiquewhite;
+				transition: visibility 0.2s, opacity 0.2s ease-in;
+			}
+		</style>
 		<!--[if lt IE 7]>
 			<p class="browsehappy">
 				You are using an <strong>outdated</strong> browser. Please
@@ -20,6 +39,7 @@
 			</p>
 		<![endif]-->
 
-        <script src="./bundle.js" async defer></script>
+		<script src="./bundle.js" async defer></script>
+		<canvas id="gameCanvas"></canvas>
 	</body>
 </html>
