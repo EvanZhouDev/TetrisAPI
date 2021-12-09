@@ -64,26 +64,51 @@ const defaults = {
 	controls: {
 		left: "ArrowLeft",
 		right: "ArrowRight",
+		rotateRight: "ArrowUp",
 		hard: " ",
-	}
+	},
 };
 
 class Tetris {
-	constructor(width, height, controls) {
+	constructor(
+		width = 10,
+		height = 40,
+		standard = true,
+		controls = defaults.controls,
+		hideTop = undefined
+	) {
+		this.standard = standard;
+		this.pieceBag = ["i", "ml", "l", "o", "s", "t", "z"];
 		this.piece = null;
 		this.stationary = Array2D.build(width, height, 0);
 		this.controls = controls;
+		this.refresh = true;
+		this.hideTop = hideTop;
+		this.activeDelay = null;
+		if (this.hideTop == undefined) {
+			if (height >= 40) {
+				this.hideTop = true;
+			}
+		}
 	}
 
 	clone() {
 		return _.cloneDeep(this);
 	}
 
-	summonPiece(piece) {
-		if (Array2D.check(piece.shape)) {
-			this.piece = piece;
-		} else {
-			console.error("Make sure that 'piece.shape' has 2D array!");
+	summonPiece(piece = undefined) {
+		if (piece !== undefined) {
+			if (Array2D.check(piece.shape)) {
+				this.piece = piece;
+			} else {
+				console.error("Make sure that 'piece.shape' has 2D array!");
+			}
+		}
+		if (this.standard) {
+			if (piece == undefined) {
+				let item =
+					this.pieceBag[Math.floor(Math.random() * this.pieceBag.length)];
+			}
 		}
 		return this;
 	}
@@ -92,9 +117,9 @@ class Tetris {
 		this.piece = null;
 	}
 
-	flatten() {
+	flatten(type = "full") {
 		if (this.piece !== null) {
-			let returnBoard = Array2D.clone(this.stationary); // Creates a new array to work with
+			let returnBoard = _.cloneDeep(this.stationary); // Creates a new array to work with
 			// Renames some variables
 			let shape = this.piece.shape;
 			let pos = this.piece.pos;
@@ -108,92 +133,163 @@ class Tetris {
 						pos.x + i2 < returnBoard[0].length && // If valid x location
 						shape[i1][i2] !== 0 // If the current space of the board is able to be replaced
 					) {
-						returnBoard[pos.y + i1][pos.x + i2] = shape[i1][i2]; // Append a shape onto the board
+						returnBoard[pos.y + i1][pos.x + i2] = this.piece.id; // Append a shape onto the board
 					}
 				});
 			});
 			// Return the new appened board
-			return returnBoard;
+			if (this.hideTop) {
+				if (type == "standard") {
+					return _.cloneDeep(returnBoard.slice(19, 40));
+				} else if (type == "full") {
+					return _.cloneDeep(returnBoard);
+				} else if (type !== "full") {
+					console.error(
+						'Please enter either "standard" or "full" for flatten type.'
+					);
+				}
+			} else {
+				return _.cloneDeep(returnBoard);
+			}
 		} else {
-			return this.stationary;
+			if (this.hideTop) {
+				if (type == "standard") {
+					return _.cloneDeep(this.stationary.slice(19, 40));
+				} else if (type == "full") {
+					return _.cloneDeep(this.stationary);
+				} else if (type !== "full") {
+					console.error(
+						'Please enter either "standard" or "full" for flatten type.'
+					);
+				}
+			} else {
+				return _.cloneDeep(returnBoard);
+			}
 		}
 	}
 
-	gravity(piece = undefined) {
+	gravity(piece = undefined, check=false) {
 		if (
-			this.piece.movePiece(
-				{ x: 0, y: 1 },
-				true,
-				cellCollider(
-					this.stationary,
-					["overlap", "bottom"],
-					this.piece.pos.x,
-					this.piece.pos.y,
-					this.piece.shape,
-					true
-				)
+			this.activeDelay == null &&
+			cellCollider(
+				this.stationary,
+				["overlap", "bottom"],
+				this.piece.pos.x,
+				this.piece.pos.y,
+				this.piece.shape,
+				true
 			) == false
 		) {
-			setTimeout(() => {
-				this.stationary = this.flatten();
-				if (piece == undefined) {
-					this.summonPiece(
-						new PieceNotation(
+			clearTimeout(this.activeDelay);
+		}
+		if (!check) {
+			if (
+				this.piece.movePiece(
+					{ x: 0, y: 1 },
+					true,
+					cellCollider(
+						this.stationary,
+						["overlap", "bottom"],
+						this.piece.pos.x,
+						this.piece.pos.y,
+						this.piece.shape,
+						true
+					)
+				) == false
+			) {
+				console.log(this.stationary);
+				this.refresh = false;
+				this.activeDelay = setTimeout(() => {
+					if (cellCollider(
+						this.stationary,
+						["overlap", "bottom"],
+						this.piece.pos.x,
+						this.piece.pos.y,
+						this.piece.shape,
+						true
+					) == false) {
+						this.refresh = true;
+						return;
+					}
+					this.piece.y = this.piece.maxY();
+					this.stationary = this.flatten();
+					if (piece == undefined) {
+						this.piece = new PieceNotation(
 							[
 								[1, 1],
 								[1, 1],
 							],
-							new Position(0, 0),
+							new Position(0, 19),
 							"o",
 							this
-						)
-					);
-					console.log(this.flatten());
-				} else {
-					this.summonPiece(piece);
-				}
-			}, settings.lockDelay);
+						);
+					} else {
+						this.summonPiece(piece);
+					}
+					this.refresh = true;
+				}, settings.lockDelay);
+			}
 		}
 	}
 
 	appendControls(element) {
 		element.addEventListener("keydown", (e) => {
+			// console.log("hi")
 			if (e.key === this.controls.left) {
 				console.log("left");
-				this.piece.movePiece(new Position(-1, 0), true, cellCollider(
-					this.stationary,
-					["overlap", "left"],
-					this.piece.pos.x,
-					this.piece.pos.y,
-					this.piece.shape,
-					true
-				));
+				this.piece.movePiece(
+					new Position(-1, 0),
+					true,
+					cellCollider(
+						this.stationary,
+						["left"],
+						this.piece.pos.x,
+						this.piece.pos.y,
+						this.piece.shape,
+						true
+					)
+				);
 			} else if (e.key === this.controls.right) {
-				this.piece.movePiece(new Position(1, 0), true, cellCollider(
-					this.stationary,
-					["right"],
-					this.piece.pos.x,
-					this.piece.pos.y,
-					this.piece.shape,
-					true
-				))
+				console.log(
+					cellCollider(
+						this.stationary,
+						["right"],
+						this.piece.pos.x,
+						this.piece.pos.y,
+						this.piece.shape,
+						true
+					)
+				);
+				this.piece.movePiece(
+					new Position(1, 0),
+					true,
+					cellCollider(
+						this.stationary,
+						["right"],
+						this.piece.pos.x,
+						this.piece.pos.y,
+						this.piece.shape,
+						true
+					)
+				);
+				console.log(this.piece);
 			} else if (e.key === this.controls.rotateLeft) {
 				this.piece.rotate(false);
 			} else if (e.key === this.controls.rotateRight) {
 				this.piece.rotate(true);
 			} else if (e.key === this.controls.hard) {
-				console.log("hi")
+				console.log("hi");
 				console.log(this.piece.maxY());
 				this.piece.pos.y = this.piece.maxY();
-				console.log(this.flatten());
-				this.gravity();
 			}
+
+			this.gravity(undefined, true);
 		});
 	}
 }
 
 class Tick {
-	constructor(tickUpdate, frameUpdate, tickSpeed) {
+	constructor(tickUpdate, frameUpdate, tickSpeed = defaults.speedUnit[1]) {
 		this.timeExists = 0;
 		this.timeSimulated = 0;
 		this.active = true;
@@ -272,7 +368,13 @@ let cellCollider = (
 					}
 
 					// Checks cell overlap if position is not illegal
-					if (Array.isArray(main[boardY]) && 0 <= boardX <= main[0].length) {
+					if (
+						Array.isArray(main[boardY]) &&
+						0 <= boardX &&
+						boardX < main[0].length &&
+						0 <= boardY &&
+						boardY < main.length
+					) {
 						if (main[boardY][boardX] !== 0) {
 							status.overlap = true;
 						}
@@ -418,7 +520,6 @@ class PieceNotation {
 
 	rotate(right) {
 		// true for right, false for left
-		console.log(this.tetris.stationary);
 		let prevRotation = this.rotation;
 		let rotationIndex;
 
@@ -533,7 +634,6 @@ class PieceNotation {
 			true
 		)
 	) {
-		console.log(this.tetris);
 		if (checkValid) {
 			if (!customCollider) {
 				this.pos.x = pos.x;
@@ -557,12 +657,73 @@ class Position {
 	}
 }
 
-class TetrisRenderer {}
+let blockWidth = 16;
+let color = {
+	i: ["#20FFF2", "#9CFFF9"], // i shape
+	2: ["#4E5FFF", "#A5ADFF"], // ml shape
+	3: ["#FCBF24", "#FECE54"], // l shape
+	o: ["#F0FE53", "#EAEDC6"], // o shape
+	5: ["#4EFF75", "#98FEAF"], // s shape
+	6: ["#9C4EFF", "#C99EFF"], // t shape
+	7: ["#FF4E4E", "#FFA8A8"], // z shape
+};
+
+class TetrisRenderer {
+	constructor(ctx, settings = undefined, tetris) {
+		this.settings = settings;
+		this.ctx = ctx;
+		this.tetris = tetris;
+	}
+
+	render() {
+		let board = this.tetris.flatten("standard");
+		Array2D.eachCell(board, (v, i, j) => {
+			// console.log(v, i, j);
+			// beginPath to be able to switch colors
+			this.ctx.beginPath();
+
+			// Always draw a background of this color:
+			this.ctx.fillStyle = "white";
+			this.ctx.rect(j * blockWidth, i * blockWidth, blockWidth, blockWidth);
+			this.ctx.fill();
+
+			// If the value of the cell isn't 0:
+			if (v !== 0) {
+				this.ctx.lineWidth = 4;
+
+				// If value is more than 7 (ghost cell), then set the color to value-7
+				if (v > 7) {
+					// Sets color
+					this.ctx.fillStyle = color[v - 7][0];
+					this.ctx.strokeStyle = color[v - 7][1] + "7D";
+				} else {
+					// Sets color
+					this.ctx.fillStyle = color[v][0];
+					this.ctx.strokeStyle = color[v][1];
+				}
+
+				// Draws the roundedRect of corresponding color
+				this.ctx.rect(j * blockWidth, i * blockWidth, blockWidth, blockWidth);
+
+				// Strokes and fills with clip and restore in order to have inner border
+				this.ctx.save();
+				this.ctx.clip();
+				this.ctx.lineWidth *= 2;
+				// if (v <= 7) {
+				this.ctx.fill();
+				// }
+				this.ctx.stroke();
+				this.ctx.restore();
+			}
+		});
+	}
+}
 
 module.exports = {
 	Tetris: Tetris,
 	Tick: Tick,
 	Position: Position,
 	PieceNotation: PieceNotation,
+	TetrisRenderer: TetrisRenderer,
 	defaults: defaults,
 };
