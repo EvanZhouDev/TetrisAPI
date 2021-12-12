@@ -1,9 +1,20 @@
 const _ = require("lodash");
 const Array2D = require("array2d");
 const wallKick = require("./wallkick.json");
+let config;
 
-let settings = {
+config = {
 	lockDelay: 500,
+	color: {
+		i: ["#20FFF2", "#9CFFF9"], // i shape
+		ml: ["#4E5FFF", "#A5ADFF"], // ml shape
+		l: ["#FCBF24", "#FECE54"], // l shape
+		o: ["#F0FE53", "#EAEDC6"], // o shape
+		s: ["#4EFF75", "#98FEAF"], // s shape
+		t: ["#9C4EFF", "#C99EFF"], // t shape
+		z: ["#FF4E4E", "#FFA8A8"], // z shape
+	},
+	blockWidth: 16,
 };
 
 const defaults = {
@@ -61,6 +72,15 @@ const defaults = {
 			[0, 0, 0],
 		],
 	},
+	spawnLocations: {
+		i: { x: 3, y: 16 },
+		ml: { x: 2, y: 16 },
+		l: { x: 2, y: 16 },
+		o: { x: 4, y: 16 },
+		s: { x: 2, y: 16 },
+		t: { x: 2, y: 16 },
+		z: { x: 2, y: 16 },
+	},
 	controls: {
 		left: "ArrowLeft",
 		right: "ArrowRight",
@@ -90,24 +110,52 @@ class Tetris {
 				this.hideTop = true;
 			}
 		}
+		this.activeListeners = {};
+	}
+
+	addEventListener(type, callback) {
+		let validListeners = ["FailedRotation"];
+		if (validListeners.includes(type)) {
+			this.activeListeners.type = callback;
+		}
 	}
 
 	clone() {
 		return _.cloneDeep(this);
 	}
 
-	summonPiece(piece = undefined) {
-		if (piece !== undefined) {
-			if (Array2D.check(piece.shape)) {
-				this.piece = piece;
+	summonPiece(summon = undefined) {
+		if (summon !== undefined) {
+			if (Array2D.check(summon.shape)) {
+				this.piece = summon;
 			} else {
 				console.error("Make sure that 'piece.shape' has 2D array!");
 			}
 		}
 		if (this.standard) {
-			if (piece == undefined) {
-				let item =
-					this.pieceBag[Math.floor(Math.random() * this.pieceBag.length)];
+			if (summon == undefined) {
+				let index = Math.floor(Math.random() * this.pieceBag.length);
+				let name = this.pieceBag[index];
+				let item = defaults.shapes[name];
+				console.log(item);
+				this.pieceBag.splice(index, 1);
+				if (this.pieceBag.length == 0) {
+					console.log("refilled");
+					this.pieceBag = ["i", "ml", "l", "o", "s", "t", "z"];
+				}
+				console.log(defaults.spawnLocations);
+				console.log(new PieceNotation(
+					item,
+					_.cloneDeep(defaults.spawnLocations[name]),
+					name,
+					this
+				));
+				this.piece = new PieceNotation(
+					item,
+					_.cloneDeep(defaults.spawnLocations[name]),
+					name,
+					this
+				);
 			}
 		}
 		return this;
@@ -168,7 +216,7 @@ class Tetris {
 		}
 	}
 
-	gravity(piece = undefined, check=false) {
+	gravity(piece = undefined, check = false, useLockDelay = true) {
 		if (
 			this.activeDelay == null &&
 			cellCollider(
@@ -199,35 +247,41 @@ class Tetris {
 			) {
 				console.log(this.stationary);
 				this.refresh = false;
-				this.activeDelay = setTimeout(() => {
-					if (cellCollider(
-						this.stationary,
-						["overlap", "bottom"],
-						this.piece.pos.x,
-						this.piece.pos.y,
-						this.piece.shape,
-						true
-					) == false) {
+				if (useLockDelay) {
+					this.activeDelay = setTimeout(() => {
+						if (
+							cellCollider(
+								this.stationary,
+								["overlap", "bottom"],
+								this.piece.pos.x,
+								this.piece.pos.y,
+								this.piece.shape,
+								true
+							) == false
+						) {
+							this.refresh = true;
+							return;
+						}
+						this.piece.y = this.piece.maxY();
+						this.stationary = this.flatten();
+						if (piece == undefined) {
+							this.summonPiece();
+						} else {
+							this.summonPiece(piece);
+						}
+
 						this.refresh = true;
-						return;
-					}
+					}, config.lockDelay);
+				} else {
+					console.log("lockdelay gone");
 					this.piece.y = this.piece.maxY();
 					this.stationary = this.flatten();
 					if (piece == undefined) {
-						this.piece = new PieceNotation(
-							[
-								[1, 1],
-								[1, 1],
-							],
-							new Position(0, 19),
-							"o",
-							this
-						);
+						this.summonPiece();
 					} else {
 						this.summonPiece(piece);
 					}
-					this.refresh = true;
-				}, settings.lockDelay);
+				}
 			}
 		}
 	}
@@ -281,6 +335,7 @@ class Tetris {
 				console.log("hi");
 				console.log(this.piece.maxY());
 				this.piece.pos.y = this.piece.maxY();
+				this.gravity(undefined, false, false);
 			}
 
 			this.gravity(undefined, true);
@@ -657,17 +712,6 @@ class Position {
 	}
 }
 
-let blockWidth = 16;
-let color = {
-	i: ["#20FFF2", "#9CFFF9"], // i shape
-	2: ["#4E5FFF", "#A5ADFF"], // ml shape
-	3: ["#FCBF24", "#FECE54"], // l shape
-	o: ["#F0FE53", "#EAEDC6"], // o shape
-	5: ["#4EFF75", "#98FEAF"], // s shape
-	6: ["#9C4EFF", "#C99EFF"], // t shape
-	7: ["#FF4E4E", "#FFA8A8"], // z shape
-};
-
 class TetrisRenderer {
 	constructor(ctx, settings = undefined, tetris) {
 		this.settings = settings;
@@ -684,26 +728,36 @@ class TetrisRenderer {
 
 			// Always draw a background of this color:
 			this.ctx.fillStyle = "white";
-			this.ctx.rect(j * blockWidth, i * blockWidth, blockWidth, blockWidth);
+			this.ctx.rect(
+				j * config.blockWidth,
+				i * config.blockWidth,
+				config.blockWidth,
+				config.blockWidth
+			);
 			this.ctx.fill();
 
 			// If the value of the cell isn't 0:
 			if (v !== 0) {
-				this.ctx.lineWidth = 4;
+				this.ctx.lineWidth = config.blockWidth / 6;
 
 				// If value is more than 7 (ghost cell), then set the color to value-7
 				if (v > 7) {
 					// Sets color
-					this.ctx.fillStyle = color[v - 7][0];
-					this.ctx.strokeStyle = color[v - 7][1] + "7D";
+					this.ctx.fillStyle = config.color[v - 7][0];
+					this.ctx.strokeStyle = config.color[v - 7][1] + "7D";
 				} else {
 					// Sets color
-					this.ctx.fillStyle = color[v][0];
-					this.ctx.strokeStyle = color[v][1];
+					this.ctx.fillStyle = config.color[v][0];
+					this.ctx.strokeStyle = config.color[v][1];
 				}
 
 				// Draws the roundedRect of corresponding color
-				this.ctx.rect(j * blockWidth, i * blockWidth, blockWidth, blockWidth);
+				this.ctx.rect(
+					j * config.blockWidth,
+					i * config.blockWidth,
+					config.blockWidth,
+					config.blockWidth
+				);
 
 				// Strokes and fills with clip and restore in order to have inner border
 				this.ctx.save();
@@ -726,4 +780,5 @@ module.exports = {
 	PieceNotation: PieceNotation,
 	TetrisRenderer: TetrisRenderer,
 	defaults: defaults,
+	config: config,
 };
