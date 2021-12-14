@@ -72,8 +72,8 @@ Tetris: Which Tetris class instance this piece will be attached to. This has to 
 ## maxY()
 Finds the maximum y level that this piece can be in, without overlapping with the stationary array.
 
-## createRotation()
-A function that generates all of the rotations for the piece, stored in the PieceNotation.ROTATIONS "constant".
+## createRotations()
+A function that generates all of the rotations for the piece, stored in the PieceNotation.ROTATIONS "constant". This function is automatically called on init
 
 ## rotate(right)
 A way to rotate the piece. Set the parameter to true to rate
