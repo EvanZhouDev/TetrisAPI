@@ -2,15 +2,15 @@ import _ from "lodash";
 import { Tetris } from "../tetrisAPI";
 function getEveryPossiblePos(board, piece) {
     let output = [];
-    const testBoard = new Tetris(board.stationary[0].length, board.stationary.length);
-    testBoard.summonPiece(piece);
+    const testBoard = new Tetris(board[0].length, board.length);
+    testBoard.summon(piece);
     testBoard.piece.move("very left");
     let before = null;
     let moves = [];
     output.push([
         testBoard
             .clone()
-            .setPos({}) // XXX
+            .hyperGravity()
             .flatten(),
         ["very left"]
     ]);
@@ -21,7 +21,7 @@ function getEveryPossiblePos(board, piece) {
         output.push([
             testBoard
                 .clone()
-                .setPos({}) // XXX
+                .hyperGravity()
                 .flatten(),
             moves
         ]);
