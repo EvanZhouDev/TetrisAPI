@@ -16,7 +16,7 @@ Controls: What the controls are. They can be written like this:
 **IMPORTANT**
 Make sure to use the actual space character when invoking the spacebar.
 
-HideTop: Whether or not to hide the top of the Tetris board. See the first regulation in the 2009 (Tetris Guidelines)[https://tetris.fandom.com/wiki/Tetris_Guideline] for more information
+HideTop: Whether or not to hide the top of the Tetris board. See the first regulation in the 2009 [Tetris Guidelines](https://tetris.fandom.com/wiki/Tetris_Guideline) for more information
 ### addEventListener(type, callback)
 Adds an event listener for a certain event. When this event listener is triggered, the callback parameter will be called.
 
