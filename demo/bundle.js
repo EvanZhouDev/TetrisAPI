@@ -10,6 +10,7 @@ let t = require("../tetrisAPI");
 let tetris = new t.Tetris();
 tetris.summonPiece();
 tetris.appendControls(document);
+
 let renderer = new t.TetrisRenderer(ctx, undefined, tetris);
 let tick = new t.Tick(() => {tetris.gravity()}, () => {renderer.render()});
 tick.start();
